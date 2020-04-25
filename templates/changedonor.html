@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}
+		献血者登记修改
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto rounded-lg shadow" style="background-color:#b1dfbb; width: 600px; margin: 100px; ">
+	<div class="w-85 mx-auto  " style="padding: 100px 30px 40px;">
+		<div class="mx-auto text-center text-danger" style="padding: 20px">
+			<h1>献血者登记修改</h1>
+		</div>
+        <form method="post" action="/donor/changedonor/" onsubmit="return change();">
+            {% csrf_token %}
+			<div class="form-group">
+				<label for="donorid">身份证号:</label>
+				<input type="text" class="form-control" id="donorid" name="donorid" onblur="checkuserID(this.value)" placeholder="请输入献血者的身份证号" required value={{ donorid }}>
+                <div style="text-align: center;"><span id="Error" style="color: red"></span></div>
+			</div>
+            <hr />
+			<div class="form-group">
+				<label for="donorname">姓名:</label>
+				<input type="text" class="form-control" id="donorname" name="donorname" onblur="checkuserName(this.value)" placeholder="可修改献血者的姓名" required>
+			</div>
+			<hr />
+			<div class="form-group">
+				性别:
+				<div class="d-inline">
+					<label title="男" class="btn btn-warning" readonly="true">
+						<input type="radio" class="custom-radio" name="sex" id="man" value="男" readonly="true"> 男
+					</label>
+					<label title="女" class="btn btn-warning" readonly="true">
+						<input type="radio" class="custom-radio" name="sex" id="woman" value="女" readonly="true"> 女
+					</label>
+				</div>
+			</div>
+			<hr />
+			<div class="form-inline">
+				<label for="donorbirth">出生日期:</label>
+				<input type="text" id="birth" class="form-control" name="birth" placeholder="献血者的出生日期" readonly="true">
+			</div>
+            <hr />
+			<div class="form-inline">
+				血型:
+				<div class='col-8'>
+					<select id="bloodtype" class="custom-select-lg" name="bloodtype">
+						<option id="A" value="A">A</option>
+						<option id="B" value="B">B</option>
+						<option id="AB" value="AB">AB</option>
+						<option id="O" value="O">O</option>
+						<option id="RH" value="Rh阴性">Rh阴性</option>
+					</select>
+				</div>
+			</div>
+
+			<hr />
+			<div class="form-group">
+				<label for="mobile">手机号:</label>
+				<input type="text" id="mobile" name="mobile" class="form-control" onblur="checkMobile(this.value)" placeholder="可修改献血者的联系方式" required>
+			</div>
+            <hr />
+  			<div class="form-group">
+				<label for="address">地址:</label>
+				<input type="text" id="address" name="address" class="form-control" placeholder="可修改献血者的地址" required>
+			</div>
+			<hr />
+  			<div class="form-inline">
+				<label for="responsible">负责人:</label>
+				<input type="text" id="responsible" name="responsible" class="form-control" placeholder="你没登录" readonly="true" value={{ manager.dusername }} required>
+			</div>
+			<hr />
+            <div style="text-align: center;"><span id="Errors" style="color: red">{{ Error }}</span></div>
+            <button type="submit" id="button" class="btn btn-block btn-success">修改</button>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block footerjs %}
+    <script type="text/javascript">
+    var flag = false;
+			function checkuserID(donorid){
+				var regId = /(^\d{18}$)|(^\d{17}(\d|X|x|Y|y)$)/;
+                var birthday;
+                if (!regId.test(donorid)) {
+                    document.getElementById("Errors").innerHTML = "身份证号填写有误";
+                } else {
+
+                    birthday = donorid.slice(6, 14);
+                    birthday = birthday.replace(/(.{4})(.{2})/,"$1-$2-");
+                    document.getElementById("birth").value=birthday;
+	                if (parseInt(donorid.slice(-2, -1)) % 2 === 1) {
+                        document.getElementById("man").checked = true;
+                    }
+	                else {
+		                sexStr = 'woman';
+		                document.getElementById("woman").checked = true;
+	                }
+
+                    $.ajax({
+                        url:'/donor/checkuserid/',
+                        type:'GET',
+                        async:false,
+                        data:{'donorid':donorid},
+                        success:function(result){
+                            var cflag = result.flag;
+                            if(cflag){
+                                flag = true;
+                                $('#Error').html('');
+                                $("#button").html("修改");
+                                $("#button").click(function () {
+                                    window.location.href="";
+                                });
+                                $('#donorname').val(result.donorname);
+                                $('#bloodtype').val(result.bloodtype).attr('select','true');
+                                $('#mobile').val(result.mobile);
+                                $('#address').val(result.address);
+
+                                $("#donorname").attr('readonly',false);
+                                $("#bloodtype").css("pointer-events","auto");
+                                $("#mobile").attr('readonly',null);
+                                $("#address").removeAttr('readonly');
+                            }else{
+                                flag = false;
+                                document.getElementById("Error").innerHTML = "献血者未注册！";
+                                document.getElementById("button").innerHTML='去注册';
+                                document.getElementById("button").onclick=function () {
+                                    window.location.href="/donor/adddonor/"+donorid;
+                                }
+
+                                document.getElementById("donorname").value = "";
+                                document.getElementById("mobile").value = "";
+                                document.getElementById("address").value= "";
+
+                                document.getElementById('donorname').readOnly=true;
+                                document.getElementById("bloodtype").style.pointerEvents="none";
+                                document.getElementById("mobile").readOnly="readonly";
+                                document.getElementById("address").readOnly="true";
+                            }
+                        }
+                    });
+                return flag;
+                }
+
+
+			}
+
+			function checkuserName(donorname){
+				var regName =/^[\u4e00-\u9fa5]{2,4}$/;
+				if(!regName.test(donorname)){
+				    document.getElementById("Errors").innerHTML = "姓名填写有误";
+				}else{
+					document.getElementById("Errors").innerHTML = "";
+				}
+			}
+
+            function checkMobile(Mobile){
+				var regMobile =/^1[3|4|5|6|7|8|9]\d{9}$/;
+				if(!regMobile.test(Mobile)){
+				    document.getElementById("Errors").innerHTML = "手机号填写有误";
+				}else{
+					document.getElementById("Errors").innerHTML = "";
+				}
+
+			}
+			function change() {
+			    if (flag){
+			        return confirm("确认修改吗？");
+			    }else{
+			        return false;
+                }
+            }
+
+    </script>
+{% endblock %}

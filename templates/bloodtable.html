@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}
+		无偿献血记录表格
+{% endblock %}
+
+{% block main %}
+    <div class="mx-auto text-center text-danger">
+		<h1>无偿献血记录表格</h1>
+	</div>
+
+
+	<div class="container container-fluid m-auto" style=" text-align: center;">
+		<div class="form-group d-inline">
+ <form action="/donor/checkblood/{{ currentpage }}/" method="get">
+			<div class="input-group" id="searchid" style="display: none">
+				<input type="text" class="form-control" name="searchid" placeholder="请输入身份证" />
+				<span class="input-group-btn">
+					<button class="btn btn-info btn-search" style="padding: 2px"><img class="img-fluid w-50 center-block" src="{{ MEDIA_URL }}{{ png }}"
+						 alt="search" /></button>
+				</span>
+			</div>
+</form>
+<form action="/donor/checkblood/{{ currentpage }}/" method="get">
+			<div class="input-group" id="searchname">
+				<input type="text" class="form-control" name="searchname" placeholder="请输入姓名" />
+				<span class="input-group-btn">
+					<button class="btn btn-info btn-search" style="padding: 2px"><img class="img-fluid w-50 center-block" src="/static/sousuo.png"
+						 alt="search" /></button>
+				</span>
+			</div>
+</form>
+        </div>
+
+
+		<div class="form-group d-inline">
+			根据
+			<label title="身份证号" class="col-form-label" for="clickid">
+				<input type="radio" class="custom-radio" name="radio" id="clickid" value="clickid"> 身份证号
+			</label>
+			<label title="姓名" class="col-form-label" for="clickname">
+				<input type="radio" class="custom-radio" name="radio" id="clickname" value="clickname" checked> 姓名
+			</label>
+			查询
+		</div>
+	</div>
+
+
+
+		<div class="table-responsive">
+			<table class="table table-bordered "style="margin: 30px;">{# table-hover table-striped" #}
+				<!-- <caption>List of users</caption> -->
+				<thead>
+					<tr>
+						<th>#</th>
+                        <th>血液编号</th>
+						<th>身份证号</th>
+						<th>姓名</th>
+                        <th>血型</th>
+                        <th>献血容量</th>
+                        <th>献血种类</th>
+                        <th>献血地址</th>
+                        <th>献血时间</th>
+                        <th>最近修改</th>
+						<th>负责人</th>
+					</tr>
+				</thead>
+				<tbody>
+                {% for blood in perpage_data %}
+                    {% if blood.bloodcreate < oldday %}
+					    <tr>
+                    {% else %}
+                        <tr bgcolor="red">
+                    {% endif %}
+						<th>
+                            {{ forloop.counter }}
+                            <a href="/donor/changeblood/{{ blood.bloodid }}/">修改</a>
+                            <a href="/donor/deleteblood/{{ currentpage }}/{{ blood.bloodid }}/" onClick="return confirm('确定删除?');">删除</a>
+                        </th>
+                        <td>{{ blood.bloodid }}</td>
+						<td>{{ blood.blooddonor.donorid }}</td>
+						<td>{{ blood.blooddonor.donorname }}</td>
+						<td>{{ blood.blooddonor.bloodtype.bloodtype }}</td>
+						<td>{{ blood.bloodvolume.bloodvolume }}</td>
+						<td>{{ blood.bloodcomponent.bloodcomponent }}</td>
+                        <td>{{ blood.bloodplace }}</td>
+                        <td>{{ blood.bloodcreate }}</td>
+                        <td>{{ blood.bloodmodify }}</td>
+ 						<td>{{ blood.bloodresponsible }}</td>
+
+					</tr>
+                {% endfor %}
+				</tbody>
+			</table>
+		</div>
+        {% if searchid != "" %}
+        <div style="text-align: center;">
+            <a href="/donor/checkblood/1/?searchid={{ searchid }}">首页</a>&emsp;
+            {% if perpage_data.has_previous %}
+            <a href="/donor/checkblood/{{ perpage_data.previous_page_number }}/?searchid={{ searchid }}">上一页</a>&emsp;
+            {% endif %}
+            {# {% for n in pager.page_range %} #}  <!-- 所有页数页*/ -->
+            {% for n in pagelist %}
+                {% if  currentpage == n %}  <!-- 当前页*/ -->
+                     <a href="/donor/checkblood/{{ n }}/?searchid={{ searchid }}" style="font-size: 28px;"color="red">{{ n }}</a>
+                {% else %}
+                <a href="/donor/checkblood/{{ n }}/?searchid={{ searchid }}">{{ n }}</a>
+            {% endif %}
+            {% endfor %}
+            {% if perpage_data.has_next %}
+            &emsp;<a href="/donor/checkblood/{{ perpage_data.next_page_number }}/?searchid={{ searchid }}">下一页</a>
+            {% endif %}
+            &emsp;<a href="/donor/checkblood/{{ pager.num_pages }}/?searchid={{ searchid }}">末页</a>
+        </div>
+
+        {% elif searchname != "" %}
+        <div style="text-align: center;">
+            <a href="/donor/checkblood/1/?searchname={{ searchname }}">首页</a>&emsp;
+            {% if perpage_data.has_previous %}
+            <a href="/donor/checkblood/{{ perpage_data.previous_page_number }}/?searchname={{ searchname }}">上一页</a>&emsp;
+            {% endif %}
+            {# {% for n in pager.page_range %} #}  <!-- 所有页数页*/ -->
+            {% for n in pagelist %}
+                {% if  currentpage == n %}  <!-- 当前页*/ -->
+                     <a href="/donor/checkblood/{{ n }}/?searchname={{ searchname }}" style="font-size: 28px;"color="red">{{ n }}</a>
+                {% else %}
+                <a href="/donor/checkblood/{{ n }}/?searchname={{ searchname }}">{{ n }}</a>
+            {% endif %}
+            {% endfor %}
+            {% if perpage_data.has_next %}
+            &emsp;<a href="/donor/checkblood/{{ perpage_data.next_page_number }}/?searchname={{ searchname }}">下一页</a>
+            {% endif %}
+            &emsp;<a href="/donor/checkblood/{{ pager.num_pages }}/?searchname={{ searchname }}">末页</a>
+        </div>
+
+        {% else %}
+        <div style="text-align: center;">
+            <a href="/donor/checkblood/1/">首页</a>&emsp;
+            {% if perpage_data.has_previous %}
+            <a href="/donor/checkblood/{{ perpage_data.previous_page_number }}/">上一页</a>&emsp;
+            {% endif %}
+            {# {% for n in pager.page_range %} #}  <!-- 所有页数页*/ -->
+            {% for n in pagelist %}
+                {% if  currentpage == n %}  <!-- 当前页*/ -->
+                     <a href="/donor/checkblood/{{ n }}/" style="font-size: 28px;"color="red">{{ n }}</a>
+                {% else %}
+                <a href="/donor/checkblood/{{ n }}/">{{ n }}</a>
+            {% endif %}
+            {% endfor %}
+            {% if perpage_data.has_next %}
+            &emsp;<a href="/donor/checkblood/{{ perpage_data.next_page_number }}/">下一页</a>
+            {% endif %}
+            &emsp;<a href="/donor/checkblood/{{ pager.num_pages }}/">末页</a>
+        {% endif %}
+{% endblock %}
+
+{% block footerjs %}
+    <script type="text/javascript">
+
+            $('input:radio[name="radio"]').change(function () {
+		        if ($("#clickid").is(":checked")) {
+		            $("#searchid").show();
+		            $("#searchid").attr('disabled',false);
+		            $("#searchname").hide();
+		            $("#searchname").attr('disabled',true);
+		        }
+		        if ($("#clickname").is(":checked")) {
+		            $("#searchid").hide();
+		            $("#searchid").attr('disabled',true);
+		            $("#searchname").show();
+                    $("#searchname").attr('disabled',false);
+		        }
+		    })
+
+
+
+    </script>
+{% endblock %}

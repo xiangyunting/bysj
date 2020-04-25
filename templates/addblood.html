@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}
+		无偿献血登记
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto rounded-lg shadow" style="background-color:pink; width: 600px; margin: 100px; ">
+			<div class="w-85 mx-auto  " style="padding: 100px 30px 40px;">
+				<div class="mx-auto text-center text-danger" style="padding: 20px">
+					<h1>无偿献血登记表</h1>
+				</div>
+				<form  method="post" action="/donor/addblood/" onsubmit="return add();">
+                    {% csrf_token %}
+					<div class="form-group">
+						<label for="donorid">身份证号:</label>
+						<input type="text" class="form-control" id="donorid" name="donorid" onblur="checkuserID(this.value)" placeholder="请输入献血者的身份证号" required value={{ donorid }}>
+                        <div style="text-align: center;"><span id="Error" style="color: red"></span></div>
+					</div>
+					<hr />
+					<div class="form-group">
+						<label for="donorname">姓名:</label>
+						<input type="text" class="form-control" id="donorname" name="donorname" placeholder="献血者的姓名" readonly="readonly" required>
+					</div>
+					<hr />
+					<div class="form-group">
+						血型:
+						<div class='col d-inline'>
+							<select id="bloodtype" class="custom-select-sm" name="bloodtype" style="pointer-events: none;">
+								<option value="A">A</option>
+								<option value="B">B</option>
+								<option value="AB">AB</option>
+								<option value="O">O</option>
+								<option value="Rh阴性">Rh阴性</option>
+							</select>
+							型
+						</div>
+						容量:
+						<div class='col d-inline'>
+							<select id="bloodvolume" class="custom-select-sm" name="bloodvolume">
+								<option value="200">200</option>
+								<option value="300">300</option>
+								<option value="400">400</option>
+							</select>
+							ml
+						</div>
+						献血成分:
+						<div class='col d-inline'>
+							<select id="bloodcomponent" class="custom-select-sm" name="bloodcomponent">
+								<option value="全血">全血</option>
+								<option value="血小板">血小板</option>
+							</select>
+						</div>
+					</div>
+					<hr />
+					<div class="form-inline">
+						<label for="bloodtime">献血日期:</label>
+						<input type="text" id="bloodtime" name="bloodtime" class="form-control" readonly="readonly" placeholder="献血者的献血日期" required>
+					</div>
+					<hr />
+					<div class="form-inline">
+						<label for="bloodplace">献血地点:</label>
+						<input type="text" id="bloodplace" name="bloodplace" class="form-control" placeholder="请输入献血者的献血地点" required>
+					</div>
+					<hr />
+					<div class="form-inline">
+						<label for="responsible">负责人:</label>
+						<input type="text" id="responsible" name="responsible" class="form-control" placeholder="你没登录" readonly="readonly" required value={{ manager.dusername }}>
+
+					</div>
+					<hr />
+
+					<div style="text-align: center;"><span id="Error" style="color: red" >{{ Error }}</span></div>
+					<button id="button" class="btn btn-block btn-success">登录</button>
+				</form>
+			</div>
+		</div>
+{% endblock %}
+
+{% block footerjs %}
+		<script type="text/javascript">
+            var flag;
+			function checkuserID(donorid) {
+
+				var regId = /(^\d{18}$)|(^\d{17}(\d|X|x|Y|y)$)/;
+				if (!regId.test(donorid)) {
+					document.getElementById("Error").innerHTML = "身份证号填写有误";
+				} else {
+					document.getElementById("Error").innerHTML = "";
+					var date =new Date();
+					document.getElementById("bloodtime").value=date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate();
+					$.ajax({
+                        url:'/donor/checkuserid/',
+                        type:'GET',
+                        async:false,
+                        data:{'donorid':donorid},
+                        success:function(result){
+                            var cflag = result.flag;
+                            if(cflag){
+                                flag = true;
+                                $('#Error').html('');
+                                $("#button").html("创建");
+                                $("#button").click(function () {
+                                    window.location.href="";
+                                });
+                                $('#donorname').val(result.donorname);
+                                $('#bloodtype').val(result.bloodtype).attr('select','true');
+                                $("#bloodvolume").css("pointer-events","auto");
+                                $("#bloodcomponent").css("pointer-events","auto");
+                                $("#bloodplace").attr('readonly',false);
+                            }else{
+                                flag = false;
+                                document.getElementById("Error").innerHTML = "献血者未注册！";
+                                document.getElementById("button").innerHTML='去注册';
+                                document.getElementById("button").onclick=function () {
+                                    window.location.href="/donor/adddonor/"+donorid;
+                                }
+                                document.getElementById("donorname").value = "";
+                                document.getElementById("bloodvolume").style.pointerEvents="none";
+                                document.getElementById("bloodcomponent").style.pointerEvents="none";
+                                document.getElementById('bloodplace').readOnly=true;
+                            }
+                        }
+                    });
+				}
+			}
+            function add() {
+			    return flag;
+
+            }
+
+		</script>
+{% endblock %}

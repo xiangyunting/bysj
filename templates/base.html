@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>{% block title %}{% endblock %}</title>
+
+		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+		<link rel="stylesheet" type="text/css" href="/static/bootstrap.css" />
+        <script src="/static/md5-min.js"></script>
+		<script src="/static/jquery-3.4.1.js"></script>
+		<script src="/static/bootstrap.bundle.js"></script>
+
+
+        {% block headerjs %}
+
+        {% endblock %}
+
+
+    </head>
+
+    <body style="background: white;">
+		<header>
+			<div class="container-fluid" style="margin-bottom: 30px;background-color:gainsboro;">
+				<div class="row justify-content-center ">
+                     <div class="col-6">
+					    <p class="display-1 text-center font-weight-bold" style="color: brown;">献血管理系统</p>
+                     </div>
+                </div>
+                <div class="row justify-content-between "  style="padding: 15px 15px 10px; ">
+                     <div class="col-2">
+                         <p class=" font-control-sm"></p>
+                     </div>
+                     <div class="col-2">
+                         <p class=" font-control-sm"></p>
+                     </div>
+
+                     {% if manager != None %}
+                     <div class="col-2 align-self-end text-center" >
+                         <span class=" text-right-end font-weight">
+                             <a href="/doctor/operate/">欢迎 {{ manager.dusername }} </a>
+                         </span>
+
+                     {% csrf_token %}
+                         <span><button class="text-right-end font-weight" id="logout">登出</button></span>
+
+                     </div>
+                     {% else %}
+                     <span class="col-2 align-self-end text-center" >
+                         <a href="/doctor/login/" class="text-right-end font-weight">登录</a>
+                         <a href="/doctor/register/" class=" text-left-end font-weight" style="text-decoration:none;"> &emsp;&emsp; </a>
+
+                     </span>
+                    {% endif %}
+                    <p id="demo"></p>
+				</div>
+			</div>
+		</header>
+        {% block main %}
+        {% endblock %}
+
+        {% block footerjs %}
+        {% endblock %}
+            <script>
+
+
+        $('#logout').click(function () {
+            $('#demo').html('csrfmiddlewaretoken='+$('input[name="csrfmiddlewaretoken"]').val());
+            $.ajax({
+                type:'post',
+                url:'/doctor/logout/',
+                data:'csrfmiddlewaretoken='+$('input[name="csrfmiddlewaretoken"]').val(),
+                success:function(result){
+                    if(result.delflag){
+                        window.location.href='/doctor/login/';
+
+                    }
+
+                }
+            })
+        })
+
+
+            </script>
+
+    </body>
+</html>

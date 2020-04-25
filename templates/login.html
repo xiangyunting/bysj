@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}
+登录页面
+{% endblock %}
+
+{% block main %}
+
+		<div class="text-center" style="margin: 20px;">
+			<h1>欢迎登录</h1>
+		</div>
+
+        <form method="post" action="/doctor/login/" onsubmit="return login();">
+        {% csrf_token %}
+		<div class="mx-auto rounded-lg shadow rounded" style="background-color:#FFE8A1; width: 600px; margin: 100px; ">
+			<div class="w-85 mx-auto " style="padding: 100px 30px 40px;">
+
+				<div class="form-group">
+					<label for="doctoruser">用户名:</label>
+					<input type="text" class="form-control" id="doctoruser" name="doctoruser" placeholder="请输入您的用户名" value="{{ doctorusr }}" required>
+				</div>
+
+				<div class="form-group">
+					<label for="doctorpwd" >密码:</label>
+					<input type="password" class="form-control" id="doctorpwd" name="doctorpwd" placeholder="请输入您的密码" value="{{ doctorpwd }}" required>
+				</div>
+				<div class="form-inline">
+					<label for="code">验证码:</label>
+					<input type="text" class="form-control" id="code" placeholder="请输入验证码" onblur="checkCode(this.value)" required>
+                    <img src="/doctor/loadCode.jpg" onclick="changeCode(this)">
+                    <div class="font-weight-bold"  style="text-align: center;"><span id="Error">{{ error }}</span></div>
+				</div>
+				<div class="checkbox">
+					<label title="保存你的用户名和密码" class="btn btn-light">
+						<input type="checkbox" class="btn" name="flag" value="1" > 记住我
+					</label>
+				</div>
+
+                <div style="text-align: center;"><span id="Errors" style="color: red"> {{ error }} </span></div>
+				<button type="submit" class="btn-block checkbox" onclick="checks()">登录</button>
+
+			</div>
+		</div>
+        </form>
+{% endblock %}
+
+{% block footerjs %}
+    <script>
+
+        {# 改变验证码图片 #}
+        function changeCode(imgObject){
+            imgObject.src='/doctor/loadCode.jpg?num='+Math.floor(Math.random() * 9999);
+            {#imgObject.src = '/doctor/loadCode.jpg?time='+new Date().getTime();#}
+        }
+        {# 验证码检测 #}
+        function checkCode(txt){
+            var cflag = false;
+            $.ajax({
+                url:'/doctor/checkcode/',
+                type:'get',
+                data:{'code':txt},
+                async:false,
+                success:function(result){
+                    var flag = result.checkFlag;
+                    if(flag){
+                        cflag = true;
+                        $('#Error').css("color","green");
+                        $('#Error').text('√');
+                    }else{
+                        cflag = false;
+                        $('#Error').css("color","red");
+                        $('#Error').text('×');
+                    }
+                }
+            });
+            return cflag;
+        }
+        function checks() {
+
+
+        }
+        function login(){
+            {# jQuery失效 #}
+            {#$('#doctorpwd').val(hex_md5($('#doctorpwd').val()));#}
+            if(checkCode(document.getElementById("code").value)){
+                document.getElementById("doctorpwd").value=hex_md5(document.getElementById("doctorpwd").value);
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+    </script>
+{% endblock %}

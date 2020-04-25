@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+功能页面
+{% endblock %}
+
+{% block main %}
+    <div class="mx-auto text-center text-dark" style="padding: 20px">
+        <h1>控制中心</h1>
+        <br />
+                <div style="text-align: center;">
+        {% if result %}
+        <div class="toast show center" id="myToast" data-autohide="true" data-delay="5000" data-animation="true" style="position:fixed;top:20px;right:20px;">
+			<div class="toast-header" style="width:200px" >
+
+				<img src="../images/logo_sm.png" alt="" class="rounded mr-2">
+				<strong class="mr-auto">上个操作结果</strong>
+				<button class="close mb-1 ml-2" data-dismiss="toast">&times;</button>
+			</div>
+
+			<div class="toast-body">
+				{{ result }}
+			</div>
+		</div>
+        {% endif %}
+        </div>
+    </div>
+
+		<div class="container container-fluid m-auto" style=" text-align: center;">
+			<div class="row justify-content-center">
+				<div class="col" style=" margin: 50px;">
+					<button type="button" class="btn btn-success btn-lg" onclick="window.location.href='/donor/adddonor/'">
+						<h1>注册<br/>献血者</h1>
+					</button>
+				</div>
+				<div class="col" style=" margin: 50px;" >
+					<button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='/donor/checkdonor/'">
+						<h1>查询<br/>献血者</h1>
+					</button>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col" style=" margin: 50px;">
+					<button type="button" class="btn btn-info btn-lg" onclick="window.location.href='/donor/addblood/'">
+						<h1>新增<br/>献血血液</h1>
+					</button>
+				</div>
+				<div class="col" style=" margin: 50px;">
+					<button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='/donor/checkblood/'">
+						<h1>查询<br/>献血血液</h1>
+					</button>
+				</div>
+
+			</div>
+		</div>
+
+
+{% endblock %}
+
+{% block footerjs %}
+    <script>
+
+    </script>
+{% endblock %}

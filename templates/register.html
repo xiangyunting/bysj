@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}
+注册页面
+{% endblock %}
+
+{% block main %}
+        <div class="text-center" style="margin: 20px;">
+			<h1>欢迎注册</h1>
+		</div>
+		<div class="mx-auto rounded-lg shadow rounded" style="background-color:#FFE8A1; width: 600px; margin: 100px; ">
+			<div class="w-85 mx-auto " style="padding: 100px 30px 40px;">
+				<form method="post" action="/doctor/register/" onsubmit="return register();">
+
+                    {% csrf_token %}
+
+					<div class="form-group">
+						<label for="doctoruser">用户名:</label>
+						<input type="text" class="form-control required" id="doctoruser" name="doctoruser" onblur="checkUname(this.value)" placeholder="请输入您的用户名">
+					</div>
+					<div class="form-group">
+						<label for="doctorpwd1">密码:</label>
+						<input type="password" class="form-control required" id="doctorpwd1" name="doctorpwd" placeholder="请输入您的密码">
+					</div>
+
+					<div class="form-group">
+						<label for="doctorpwd2">确认密码:</label>
+						<input type="password" class="form-control" id="doctorpwd2" placeholder="请再次输入您的密码">
+					</div>
+					<div style="text-align: center;"><span id="Errors" style="color: red">  </span></div>
+					<button class="btn-block checkbox" onclick="validatePwd()">注册</button>
+				</form>
+			</div>
+		</div>
+{% endblock %}
+
+{% block footerjs %}
+		<script>
+            var fla, flag;
+
+            function checkUname(username){
+                flag = false;
+                    $.ajax({
+                        url:'/doctor/checkuname/',
+                        type:'GET',
+                        async:false,
+                        data:{'uname':username},
+                        success:function(result){
+                            var cflag = result.flag;
+                            if(cflag){
+                                flag = true;
+                                $('#Errors').html('用户名已存在！')
+
+                            }else{
+                                flag = false;
+                                document.getElementById("Errors").innerHTML = "";
+                            }
+                        }
+                    });
+                return flag;
+            }
+
+
+
+			function validatePwd() {
+			    var user = document.getElementById("doctoruser").value;
+				var pwd1 = document.getElementById("doctorpwd1").value;
+				var pwd2 = document.getElementById("doctorpwd2").value;
+
+				if (pwd1 !== pwd2) {
+					document.getElementById("Errors").innerHTML = "两次密码不一致";
+                    fla=true;
+				}else if(user === "" || pwd1 === ""){
+				    document.getElementById("Errors").innerHTML = "用户名或密码不能为空";
+                    fla=true;
+                }
+				else {
+					document.getElementById("Errors").innerHTML = "";
+					fla=false;
+				}
+			}
+
+            function register() {
+                $('#doctorpwd1').val(hex_md5($('#doctorpwd1').val()));
+                {#document.getElementById("doctorpwd1").value=hex_md5(document.getElementById("doctorpwd1").value);#}
+			    if(fla||flag){
+                    return false;}
+                else{
+                    return true;}
+            }
+
+		</script>
+
+
+{% endblock %}
